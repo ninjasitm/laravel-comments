@@ -17,11 +17,62 @@ class Comment extends Model implements CommentContract
         'comment',
         'user_id',
         'is_approved',
+        'commentable_id',
+        'commentable_type'
     ];
 
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = 'updated_at';
+
+
+    protected $dates = ['deleted_at'];
+
+    /**
+     * The attributes that should be casted to native types.
+     *
+     * @var array
+     */
     protected $casts = [
-        'is_approved' => 'boolean'
+        'id' => 'integer',
+        'commentable_type' => 'string',
+        'commentable_id' => 'integer',
+        'comment' => 'string',
+        'is_approved' => 'boolean',
+        'user_id' => 'integer'
     ];
+
+    /**
+     * Validation rules
+     *
+     * @var array
+     */
+    public static $rules = [
+        'commentable_type' => 'sometimes|string|max:255',
+        'commentable_id' => 'sometimes',
+        'comment' => 'required|string',
+        'is_approved' => 'sometimes|boolean',
+        'user_id' => 'nullable',
+        'created_at' => 'nullable',
+        'updated_at' => 'nullable',
+        'deleted_at' => 'nullable'
+    ];
+
+
+    /**
+     * The "booting" method of the model.
+     */
+    public static function boot()
+    {
+        parent::boot();
+
+        static::creating(
+            function ($comment) {
+                if (auth()->check()) {
+                    $comment->user_id = $comment->user_id ?? auth()->id();
+                }
+            }
+        );
+    }
 
     public function scopeApproved($query)
     {
@@ -43,6 +94,11 @@ class Comment extends Model implements CommentContract
         return $this->belongsTo($this->getAuthModelName(), 'user_id');
     }
 
+    public function commenter()
+    {
+        return $this->commentator();
+    }
+
     public function approve()
     {
         $this->update([
@@ -59,6 +115,13 @@ class Comment extends Model implements CommentContract
         ]);
 
         return $this;
+    }
+
+    public function scopeForModel($query, Model $model) {
+        $query->where([
+            'commentable_type' => get_class($model),
+            'commentable_id' => $model->id ?? -1
+        ])
     }
 
     protected function getAuthModelName()

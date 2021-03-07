@@ -45,7 +45,7 @@ trait HasComments
      * @param string $comment
      * @return \Illuminate\Database\Eloquent\Model
      */
-    public function comment(string $comment)
+    public function addComment(string $comment  = '')
     {
         return $this->commentAsUser(auth()->user(), $comment);
     }
