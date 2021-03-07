@@ -28,6 +28,11 @@ class Comment extends Model implements CommentContract
         return $query->where('is_approved', true);
     }
 
+    public function scopeDisapproved($query)
+    {
+        return $query->where('is_approved', false);
+    }
+
     public function commentable()
     {
         return $this->morphTo();
