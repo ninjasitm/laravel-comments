@@ -5,15 +5,18 @@ namespace BeyondCode\Comments;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use BeyondCode\Comments\Traits\HasComments;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use BeyondCode\Comments\Contracts\Comment as CommentContract;
 
-class Comment extends Model
+class Comment extends Model implements CommentContract
 {
     use HasComments;
+    use SoftDeletes;
 
     protected $fillable = [
         'comment',
         'user_id',
-        'is_approved'
+        'is_approved',
     ];
 
     protected $casts = [
@@ -43,7 +46,7 @@ class Comment extends Model
 
         return $this;
     }
-  
+
     public function disapprove()
     {
         $this->update([
@@ -65,5 +68,4 @@ class Comment extends Model
 
         throw new Exception('Could not determine the commentator model name.');
     }
-
 }
