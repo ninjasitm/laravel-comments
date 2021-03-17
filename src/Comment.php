@@ -117,11 +117,12 @@ class Comment extends Model implements CommentContract
         return $this;
     }
 
-    public function scopeForModel($query, Model $model) {
+    public function scopeForModel($query, Model $model)
+    {
         $query->where([
             'commentable_type' => get_class($model),
             'commentable_id' => $model->id ?? -1
-        ])
+        ]);
     }
 
     protected function getAuthModelName()
