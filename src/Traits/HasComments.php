@@ -60,7 +60,6 @@ trait HasComments
     public function commentAsUser(?Model $user, string $comment)
     {
         $commentClass = config('comments.comment_class');
-
         $comment = new $commentClass([
             'comment' => $comment,
             'is_approved' => ($user instanceof Commentator) ? !$user->needsCommentApproval($this) : false,
